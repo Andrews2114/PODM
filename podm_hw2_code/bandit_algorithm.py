@@ -18,9 +18,13 @@ def basic_conf_intervals(error_prob_bound, arms_pulls, arms_estimates_history):
     if np.min(arms_pulls) == 0:
         pulls_nonzero = copy.copy(arms_pulls)
         pulls_nonzero[pulls_nonzero == 0] = 1e-10
-        confidence_radii = ...  # PODMexercise
+        confidence_radii = np.sqrt(
+            2 * np.log(1 / error_prob_bound) / pulls_nonzero
+        )
     else:
-        confidence_radii = ...  # PODMexercise
+        confidence_radii = np.sqrt(
+            2 * np.log(1 / error_prob_bound) / arms_pulls
+        )
     upper_bounds = arms_estimates_history[-1] + confidence_radii
     lower_bounds = arms_estimates_history[-1] - confidence_radii
     return lower_bounds, upper_bounds
@@ -288,8 +292,12 @@ class SequentialElimination(BanditAlgorithm):
             lower_bounds, upper_bounds = basic_conf_intervals(
                 self.error_prob_bound, self.arms_pulls, self.arms_estimates_history
             )
+            max_active_lower_bound = np.max(lower_bounds[self.active_arms])
             self.active_arms = [
-                arm for arm in self.active_arms if ...]  # PODMexercise
+                arm
+                for arm in self.active_arms
+                if upper_bounds[arm] >= max_active_lower_bound
+            ]
             if len(self.active_arms) <= 1:
                 if self.last_exploration_step == -1:
                     self.last_exploration_step = self.timestep

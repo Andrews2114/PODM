@@ -135,13 +135,13 @@ class GaussianBandit(BanditEnvironment):
 
     def pull_arm(self, arm: int) -> float:
         """Pull arm and return Gaussian reward."""
-        reward = ...  # PODMexercise
+        reward = float(self.rng.normal(self.means[arm], np.sqrt(self.variances[arm])))
         self.history.append((arm, reward))
         self.timestep += 1
         return reward
 
     def get_optimal_arm(self) -> int:
-        return ...  # PODMexercise
+        return int(np.argmax(self.means))
 
     def get_arm_means(self) -> np.ndarray:
         return self.means.copy()
@@ -170,12 +170,12 @@ class UniformBandit(BanditEnvironment):
         """Pull arm and return Uniform reward."""
         self.timestep += 1
         low, high = self.intervals[arm]
-        reward = ...  # PODMexercise
+        reward = float(self.rng.uniform(low, high))
         self.history.append((arm, reward))
         return reward
 
     def get_optimal_arm(self) -> int:
-        return ...  # PODMexercise
+        return int(np.argmax(self.means))
 
     def get_arm_means(self) -> np.ndarray:
         return self.means.copy()
